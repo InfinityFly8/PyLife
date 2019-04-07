@@ -1,15 +1,17 @@
 import math
 import random
 from collections import deque
-from colorama import init, Fore
-init()
+import curses
+# from colorama import init, Fore
+# init()
 
 
 class Empty:
     """Base class. Empty cell.
     """
     symbol = " "
-    color = Fore.WHITE
+    color = curses.COLOR_WHITE
+    style = 0
     life = 0
     hunger = 0
     speed = 0
@@ -20,22 +22,19 @@ class Empty:
         self.x = pos[0]
         self.y = pos[1]
         self.id = random.randint(10000, 999999999)
-        if debugger is not None:
+        if debugger is not None and bool(self):
             self.debugger = debugger
             self.debugger.write(self, "birth", str(parent))
         else:
             self.debugger = None
         
-     def set_current_position(self):
-         for i, row in enumerate(self.scene["place"]):
+    def set_current_position(self):
+        for i, row in enumerate(self.scene["place"]):
              for k, column in enumerate(row):
                   if column is self:
                       self.x = i
                       self.y = k
                       return None
-    
-    def __str__(self):
-        return self.color + self.symbol + " " + Fore.RESET
         
     def __bool__(self):
         return False
@@ -46,7 +45,6 @@ class Empty:
 
 class Food(Empty):
     symbol = "^"
-    color = Fore.WHITE
     eat_cost = 5
     def tact(self):
         self.count += 1
@@ -61,7 +59,8 @@ class Barrier(Empty):
     """Base class for non-movable cells like a stones and animals.
     """
     symbol = "#"
-    color = Fore.LIGHTBLACK_EX
+    color = curses.COLOR_BLACK
+    style = curses.A_DIM
 
 class Life(Empty):
     count = 0
@@ -84,7 +83,7 @@ class Life(Empty):
             die_mod = "destr"
             died = Empty
         class_name = self.__class__.__name__
-        self.set_current_position()
+        # self.set_current_position()
         # print(self.id, self.__class__.__name__, self.scene["place"][self.x][self.y] is self, )
         self.scene["place"][self.x][self.y] = died(self.scene, (self.x, self.y), self.debugger)
         if self.debugger is not None:
@@ -171,7 +170,8 @@ class Animal(Barrier):
     can_eat = Food
     strength = 10
     symbol = "$"
-    color = Fore.CYAN
+    color = curses.COLOR_CYAN
+    style = 0
     speed = 1
     under = None
     report = None
@@ -181,6 +181,8 @@ class Animal(Barrier):
         return True   
             
     def move(self, tar_x, tar_y):
+        if tar_x == self.x and tar_y == self.y:
+            return
         target = self.scene["place"][tar_x][tar_y]
         if not isinstance(target, (Barrier,)):
             temp = self.under if self.under is not None else Empty(self.scene, (self.x, self.y), self.debugger, self.id)
@@ -195,6 +197,8 @@ class Animal(Barrier):
                 self.debugger.write(self, "move", "%s_%s" % (tar_x, tar_y))
 
     def eat(self, tar_x, tar_y):
+        if tar_x == self.x and tar_y == self.y:
+            return
         target = self.scene["place"][tar_x][tar_y]
         
         if isinstance(target, self.can_eat) \
@@ -214,8 +218,8 @@ class Animal(Barrier):
         
     def hunger_manage(self):
         self.count += 1
-        if self.under:
-            self.under.tact()
+        # if self.under:
+        #     self.under.tact()
         if self.count % self.hunger_mult == 0:
             self.hunger += self.hunger_tact
         

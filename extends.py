@@ -1,25 +1,26 @@
 import random
 import math
-from colorama import init, Fore
+import curses
+# from colorama import init, Fore
 from base_substances import Empty, Barrier, Food, Life, Animal
-init()
+# init()
 
 
 class Meat(Food):
-	pass
+    pass
 
 class Fresh(Meat):
     count = 0
     eat_cost = 30
     symbol = "@"
-    color = Fore.LIGHTRED_EX
-    
+    color = curses.COLOR_RED
+    style = curses.A_BOLD
 
 class Carrion(Meat):
-	count = 0
-	eat_cost = 7
-	symbol = "%"
-	color = Fore.RED
+    count = 0
+    eat_cost = 7
+    symbol = "%"
+    color = curses.COLOR_RED
 
 class Alga(Life, Food):
     speed = 0
@@ -28,7 +29,7 @@ class Alga(Life, Food):
     repr_time = 6
     symbol = '+'
     count = 0
-    color = Fore.GREEN
+    color = curses.COLOR_GREEN
 
     def __init__(self, scene, pos, debugger=None, parent=None):
         Food.__init__(self, scene, pos, debugger, parent)
@@ -59,7 +60,7 @@ class Vegetarian(Animal, Life):
     speed = 2
     died = Fresh
     can_eat = Alga
-    color = Fore.CYAN
+    color = curses.COLOR_CYAN
     
     def __init__(self, scene, pos, debug=None, parent=None):
         Animal.__init__(self, scene, pos, debug, parent)
@@ -102,7 +103,8 @@ class Scavenger(Animal, Life):
     strength = 12
     can_eat = Meat
     died = Carrion
-    color = Fore.LIGHTMAGENTA_EX
+    color = curses.COLOR_MAGENTA
+    style = curses.A_BOLD
     
     def __init__(self, scene, pos, debug=None, parent=None):
         Animal.__init__(self, scene, pos, debug, parent)
@@ -119,7 +121,6 @@ class Scavenger(Animal, Life):
             if report[self.can_eat.__name__]:
                 for_eat = random.choice(report[self.can_eat.__name__])
                 self.eat(*for_eat)
-                self.move(*for_eat)
             else:
                 self.move(*random.choice(report["Empty"]))
                 
@@ -161,7 +162,8 @@ class Predator (Animal, Life):
     strength = 15
     can_eat = Animal
     died = Fresh
-    color = Fore.LIGHTYELLOW_EX
+    color = curses.COLOR_YELLOW
+    style = curses.A_BOLD
     
     def __init__(self, scene, pos, debug, parent=None):
         Animal.__init__(self, scene, pos, debug, parent)
@@ -174,7 +176,6 @@ class Predator (Animal, Life):
             if report[self.can_eat.__name__]:
                 for_eat = random.choice(report[self.can_eat.__name__])
                 self.eat(*for_eat)
-                self.move(*for_eat)
         
         elif report["Empty"]:
             if self.life >= 75 and self.hunger <= 50 and self.count >= self.repr_time:
