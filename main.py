@@ -61,7 +61,7 @@ class Main:
                 print("{0}:  {1}".format(i + 1, sett))
                 
             choosed = (int(input("Select an item to change: ")) - 1)
-            if choosed > 0 or choosed <= len(settings):
+            if choosed > 0 or choosed < len(settings):
                 choosed_elem = settings[choosed]
             else:
                 print("Out of range.")
@@ -133,16 +133,19 @@ class Main:
                 break
         comm2 = input("Start the simulation? [y/n]: ")[0].lower()
         if comm2 == "y":
-            
-            sc = scene.Scene(self.debugger, self.table_len, *self.objects, default=self.default)
-            rend = scene.Render(self.speed, sc)
-            curses.wrapper(rend.run_scene)
-            
-            self.clear()
-            print("#" * 20, "\n")
-            print("Steps: ", str(sc.scene["count"]))
-            print("All died. Game Over...")
-            print("\n", "#" * 20, sep="")
+            try:
+                sc = scene.Scene(self.debugger, self.table_len, *self.objects, default=self.default)
+                rend = scene.Render(self.speed, sc)
+                curses.wrapper(rend.run_scene)
+                self.clear()
+                print("#" * 20, "\n")
+                print("Steps: ", str(sc.scene["count"]))
+                print("All died. Game Over...")
+                print("\n", "#" * 20, sep="")
+            except curses.error:
+                print("\n\nError:")
+                print("Your window too small for this table size: {0[0]}x{0[1]}".format(self.table_len))
+                print("Please, enlarge your window or lessen the table in settings")
         input("Press enter to exit...")
 
         

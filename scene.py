@@ -47,7 +47,10 @@ class Scene:
                          class
             default: named argument. Default type in table.
         """
-        self.debugger = debugger() or None
+        if debugger is not None:
+            self.debugger = debugger()
+        else:
+            self.debugger = None
         # place create
         self.scene = {}
         place = []
