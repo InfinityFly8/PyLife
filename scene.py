@@ -163,18 +163,3 @@ class Render:
             self.scene_obj.tact()
             self.render(stdscr)
             time.sleep(self.render_speed)
-        #game over message
-        self.game_over(stdscr)
-        stdscr.getstr()
-            
-    def game_over(self, stdscr):
-        # size = stdscr.getmaxyx()
-        row = 1 # (size[0] - 15) // 2
-        stdscr.clear()
-        stdscr.addstr(1, row, "#" * 20)
-        stdscr.addstr(3, row, "Steps: " + str(self.scene_obj.scene["count"]))
-        stdscr.addstr(4, row, "Speed: " + str(self.render_speed) + " sec.")
-        stdscr.addstr(5, row, "All died. Game Over")
-        stdscr.addstr(7, row, "#" * 20)
-        stdscr.addstr(9, row, "    Press Enter")
-        stdscr.refresh()
