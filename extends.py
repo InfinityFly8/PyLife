@@ -68,24 +68,34 @@ class Vegetarian(Animal, Life):
     def tact(self):
         report = self.search(self.can_eat, Empty, Predator, Scavenger)
         self.hunger_manage()
+        if self.should_be_die:
+            return
         if report["Predator"] or report["Scavenger"] and self.life < 60:
             for_attack = report["Predator"] + report["Scavenger"]
             for target in for_attack:
                 if not random.randint(0, 3):
                     self.attack(*target)
+                    
+            assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
                 
         if self.hunger > 50 and self.life < 70 and \
         report[self.can_eat.__name__] and \
         self.count % self.hunger_mult == 0:
             for_eat = random.choice(report[self.can_eat.__name__])
             self.eat(*for_eat)
+            assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+            return
         
         elif report["Empty"]:
             if self.life >= 65 and self.hunger <= 70 and self.count >= self.repr_time:
                 rand1 = random.choice(report["Empty"])
                 rand2 = random.choice(report["Empty"])
                 self.reproduct(rand1, rand2)
-            self.move(*random.choice(report["Empty"]))
+                return
+            else:
+                self.move(*random.choice(report["Empty"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
         else:
             self.hunger += 10
 
@@ -111,18 +121,26 @@ class Scavenger(Animal, Life):
     
     def tact(self):
         self.hunger_manage()
+        if self.should_be_die:
+            return
         report = self.search(self.can_eat, Empty, Vegetarian, Predator, Alga)
         
         if self.hunger > 45 and self.life < 70:
-            if report["Vegetarian"] or report["Predator"] * 2:
-                for for_attack in report["Vegetarian"] + report["Predator"]:
+            if report["Vegetarian"] or report["Predator"]:
+                for for_attack in report["Vegetarian"] + report["Predator"] * 2:
                     self.attack(*for_attack)
-                    
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
+                
             if report[self.can_eat.__name__]:
                 for_eat = random.choice(report[self.can_eat.__name__])
                 self.eat(*for_eat)
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
             else:
                 self.move(*random.choice(report["Empty"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
                 
         elif report["Predator"] and report["Empty"] and not random.randint(0,4):
             min = (0, (self.x, self.y))
@@ -132,6 +150,8 @@ class Scavenger(Animal, Life):
                     min = (res, empty)
             if min[0] > 0:
                 self.move(*min[1])
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
             
         elif report["Empty"]:
             if self.life >= 75 and self.hunger <= 55 \
@@ -139,11 +159,16 @@ class Scavenger(Animal, Life):
                 rand1 = random.choice(report["Empty"])
                 rand2 = random.choice(report["Empty"])
                 self.reproduct(rand1, rand2)
+                return
                 
             if report["Alga"] and not random.randint(0,3):
                 self.move(*random.choice(report["Alga"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
             else:
                 self.move(*random.choice(report["Empty"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
         else:
             self.hunger += 6
 
@@ -170,24 +195,33 @@ class Predator (Animal, Life):
     
     def tact(self):
         self.hunger_manage()
+        if self.should_be_die:
+            return
         report = self.search(self.can_eat, Empty, Animal, Alga)
         
         if self.hunger > 55 and self.life < 65 and self.count % self.hunger_mult in [0, 1]:
             if report[self.can_eat.__name__]:
                 for_eat = random.choice(report[self.can_eat.__name__])
                 self.eat(*for_eat)
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
         
         elif report["Empty"]:
             if self.life >= 75 and self.hunger <= 50 and self.count >= self.repr_time:
                 rand1 = random.choice(report["Empty"])
                 rand2 = random.choice(report["Empty"])
                 self.reproduct(rand1, rand2)
-            if report["Alga"] and not random.randint(0,3):
+                return
+            elif report["Alga"] and not random.randint(0,3):
                 self.move(*random.choice(report["Alga"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
             else:
                 self.move(*random.choice(report["Empty"]))
+                assert self.scene["place"][self.x][self.y] is self, "Immortality Error is here. id: {}".format(self.id)
+                return
         else:
-            self.hunger += 5
+            self.hunger += 4
 
     
     

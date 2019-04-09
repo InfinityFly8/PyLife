@@ -16,13 +16,14 @@ class Empty:
     hunger = 0
     speed = 0
     count = 0
+    should_be_die = False
     
     def __init__(self, scene, pos, debugger, parent=None):
         self.scene = scene
         self.x = pos[0]
         self.y = pos[1]
         self.id = random.randint(10000, 999999999)
-        if debugger is not None and bool(self):
+        if debugger is not None:
             self.debugger = debugger
             self.debugger.write(self, "birth", str(parent))
         else:
@@ -69,7 +70,7 @@ class Life(Empty):
         raise TypeError()
     
     def get_distance(self, tar1, tar2):
-        return math.sqrt(abs(tar1[0] - tar2[0]) ** 2 + abs(tar1[0] - tar2[1]) ** 2) 
+        return math.sqrt(abs(tar1[0] - tar2[0]) ** 2 + abs(tar1[1] - tar2[1]) ** 2) 
         
     def die(self, repr_eat=None, id=None):
         
@@ -86,6 +87,7 @@ class Life(Empty):
         # self.set_current_position()
         # print(self.id, self.__class__.__name__, self.scene["place"][self.x][self.y] is self, )
         self.scene["place"][self.x][self.y] = died(self.scene, (self.x, self.y), self.debugger)
+        self.should_be_die = True
         if self.debugger is not None:
             self.debugger.write(self, die_mod, str(id))
         
@@ -133,7 +135,8 @@ class Life(Empty):
     def reproduct(self, tar1, tar2):
         if tar1 == tar2:
             return False
-           
+        if self.should_be_die:
+            raise IndexError("This element should be die. Id: {}".format(self.id))   
         if self.count >= self.repr_time:
             target1 = self.scene["place"][tar1[0]][tar1[1]]
             target2 = self.scene["place"][tar2[0]][tar2[1]]
@@ -143,7 +146,9 @@ class Life(Empty):
             else:
                 rules = (Barrier, Food)
             if  not isinstance(target1, rules) \
-            and not isinstance(target2, rules):
+            and not isinstance(target2, rules) \
+            and self.scene["place"][tar1[0]][tar1[1]] is not self \
+            and self.scene["place"][tar2[0]][tar2[1]] is not self:
                 sfclass = self.__class__
                 self.scene["place"][tar1[0]][tar1[1]] = sfclass(self.scene, (tar1[0], tar1[1]), self.debugger, self.id)
                 self.scene["place"][tar2[0]][tar2[1]] = sfclass(self.scene, (tar2[0], tar2[1]), self.debugger, self.id)
@@ -181,8 +186,14 @@ class Animal(Barrier):
         return True   
             
     def move(self, tar_x, tar_y):
+        if self.should_be_die:
+            raise IndexError("This element should be die. Id: {}".format(self.id))
+            
         if tar_x == self.x and tar_y == self.y:
             return
+        
+        if self.should_be_die:
+            raise IndexError("This element should be die. Id: {}".format(self.id))
         target = self.scene["place"][tar_x][tar_y]
         if not isinstance(target, (Barrier,)):
             temp = self.under if self.under is not None else Empty(self.scene, (self.x, self.y), self.debugger, self.id)
@@ -197,6 +208,9 @@ class Animal(Barrier):
                 self.debugger.write(self, "move", "%s_%s" % (tar_x, tar_y))
 
     def eat(self, tar_x, tar_y):
+        if self.should_be_die:
+            raise IndexError("This element should be die. Id: {}".format(self.id))
+            
         if tar_x == self.x and tar_y == self.y:
             return
         target = self.scene["place"][tar_x][tar_y]
