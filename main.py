@@ -146,6 +146,8 @@ class Main:
                 print("\n\nError:")
                 print("Your window too small for this table size: {0[0]}x{0[1]}".format(self.table_len))
                 print("Please, enlarge your window or lessen the table in settings")
+            except KeyboardInterrupt:
+                print("\n\nSimulation stopped\n")
         input("Press enter to exit...")
 
         
