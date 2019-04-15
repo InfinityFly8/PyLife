@@ -36,6 +36,9 @@ class Empty:
                       self.x = i
                       self.y = k
                       return None
+    
+    def attacked(self, *args):
+        pass
         
     def __bool__(self):
         return False
