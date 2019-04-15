@@ -60,7 +60,7 @@ class Vegetarian(Animal, Life):
     speed = 2
     died = Fresh
     can_eat = Alga
-    color = curses.COLOR_CYAN
+    color = curses.COLOR_BLUE
     
     def __init__(self, scene, pos, debug=None, parent=None):
         Animal.__init__(self, scene, pos, debug, parent)
